@@ -6,8 +6,7 @@ function identifierMatches(string, pattern) {
   if (!pattern) {
     return true;
   } else if (pattern instanceof RegExp) {
-    if (string.match(pattern))
-      return true;
+    return string.match(pattern);
   } else if (pattern === string) {
     return true;
   }
@@ -105,6 +104,7 @@ Linter.prototype.isSafeProperty = function(node, type, suffix) {
   var patterns = this.config.properties[type + suffix] || [];
   var receiver = node.object.name;
   var property = node.property.name;
+  if (!property) return false;
 
   for (var i = 0, len = patterns.length; i < len; i++) {
     if (propertyMatches(receiver, property, patterns[i]))
