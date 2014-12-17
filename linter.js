@@ -48,45 +48,65 @@ Linter.prototype.run = function() {
 
 Linter.prototype.processCall = function(node) {
   var callee = node.callee;
-  var receiver = callee.object;
-  var method = callee.property;
-
-  if (!this.isXssableCall(callee, receiver, method)) return;
-  if (node.arguments.every(this.isSafeExpression.bind(this))) return;
-
-  var line = receiver.loc.start.line;
-  receiver = receiver.name;
+  var method = callee.property || callee;
   method = method.name;
+
+  if (!this.isXssableCall(node)) return;
+  if (node.arguments.every(this.isSafeExpression.bind(this, method))) return;
+
+  var line = callee.loc.start.line;
   console.log(this.file + ":" + line + ": possibly XSS-able " + method + " call");
 };
 
-Linter.prototype.isXssableCall = function(node, receiver, method) {
-  return node.type === "MemberExpression" &&
-    !node.computed &&
-    method.type === "Identifier" &&
-    this.config.properties.xssables.some(function(xssable) {
-      return identifierMatches(method.name, xssable.identifier);
-    })
+Linter.prototype.isXssableCall = function(node) {
+  if (this.isXssableFunction(node)) return true;
+  if (this.isXssableMethod(node)) return true;
+  return false;
 };
 
-Linter.prototype.isSafeExpression = function(node) {
+Linter.prototype.isXssableFunction = function(node) {
+  return this.functionMatches(node, "xssable");
+};
+
+Linter.prototype.isXssableMethod = function(node) {
+  return this.methodMatches(node, "xssable") &&
+         !this.identifierMatches(node.callee.object, "xssable", ".whitelist");
+};
+
+Linter.prototype.isSafeExpression = function(method, node) {
   if (!node) return true;
   if (this.isSafeString(node)) return true;
   if (this.isJQueryObject(node)) return true;
+  // TODO: make this configurable somehow
+  if (method === "$") {
+    if (this.isSelectorExpression(node)) return true;
+  }
+  return false;
+};
+
+Linter.prototype.isSelectorExpression = function(node) {
+  var acceptableTypes = ["MemberExpression", "Identifier", "CallExpression", "ThisExpression", "FunctionExpression", "ObjectExpression", "ArrayExpression"];
+  if (acceptableTypes.indexOf(node.type) >= 0) return true;
+
+  if (node.type === "BinaryExpression" || node.type === "AssignmentExpression" || node.type === "LogicalExpression") {
+    if (this.isSelectorExpression(node.left)) return true;
+    if (node.left.type === "Literal" && node.left.value[0] !== "<") return true;
+  }
+
   return false;
 };
 
 Linter.prototype.isSafeString = function(node) {
   if (node.type === "Literal") return true;
-  if (this.isSafeIdentifier(node, "safeString")) return true;
-  if (this.isSafeProperty(node, "safeString")) return true;
-  if (this.isSafeFunction(node, "safeString")) return true;
-  if (this.isSafeMethod(node, "safeString")) return true;
+  if (this.identifierMatches(node, "safeString")) return true;
+  if (this.propertyMatches(node, "safeString")) return true;
+  if (this.functionMatches(node, "safeString")) return true;
+  if (this.methodMatches(node, "safeString")) return true;
   if (this.isSafeStringConcatenation(node)) return true;
   return false;
 };
 
-Linter.prototype.isSafeIdentifier = function(node, type, suffix) {
+Linter.prototype.identifierMatches = function(node, type, suffix) {
   if (node.type !== "Identifier") return false;
   suffix = suffix || ".identifier"
   var patterns = this.config.properties[type + suffix] || [];
@@ -99,7 +119,7 @@ Linter.prototype.isSafeIdentifier = function(node, type, suffix) {
   return false;
 };
 
-Linter.prototype.isSafeProperty = function(node, type, suffix) {
+Linter.prototype.propertyMatches = function(node, type, suffix) {
   if (node.type !== "MemberExpression") return false;
   suffix = suffix || ".property"
   var patterns = this.config.properties[type + suffix] || [];
@@ -114,14 +134,14 @@ Linter.prototype.isSafeProperty = function(node, type, suffix) {
   return false;
 };
 
-Linter.prototype.isSafeFunction = function(node, type) {
+Linter.prototype.functionMatches = function(node, type) {
   if (node.type !== "CallExpression") return false;
-  return this.isSafeIdentifier(node.callee, type, ".function")
+  return this.identifierMatches(node.callee, type, ".function")
 };
 
-Linter.prototype.isSafeMethod = function(node, type) {
+Linter.prototype.methodMatches = function(node, type) {
   if (node.type !== "CallExpression") return false;
-  return this.isSafeProperty(node.callee, type, ".method");
+  return this.propertyMatches(node.callee, type, ".method");
 };
 
 Linter.prototype.isSafeStringConcatenation = function(node) {
@@ -133,10 +153,10 @@ Linter.prototype.isSafeStringConcatenation = function(node) {
 };
 
 Linter.prototype.isJQueryObject = function(node) {
-  if (this.isSafeIdentifier(node, "jqueryObject")) return true;
-  if (this.isSafeProperty(node, "jqueryObject")) return true;
-  if (this.isSafeFunction(node, "jqueryObject")) return true;
-  if (this.isSafeMethod(node, "jqueryObject")) return true;
+  if (this.identifierMatches(node, "jqueryObject")) return true;
+  if (this.propertyMatches(node, "jqueryObject")) return true;
+  if (this.functionMatches(node, "jqueryObject")) return true;
+  if (this.methodMatches(node, "jqueryObject")) return true;
   if (this.isSafeCallChain(node)) return true;
   return false;
 };
