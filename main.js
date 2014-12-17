@@ -16,15 +16,15 @@ XSSLint = {
 };
 
 XSSLint.configure({
-  xssables:                  "append prepend html",
-  "jqueryObject.identifier": null,
-  "jqueryObject.property":   "el",
-  "jqueryObject.function":   "$",
-  "jqueryObject.method":     null,
-  "safeString.identifier":   null,
-  "safeString.property":     "length",
-  "safeString.function":     null,
-  "safeString.method":       "html"
+  xssables:                  ["append", "prepend", "html"],
+  "jqueryObject.identifier": [],
+  "jqueryObject.property":   ["el"],
+  "jqueryObject.function":   ["$"],
+  "jqueryObject.method":     [],
+  "safeString.identifier":   [],
+  "safeString.property":     ["length"],
+  "safeString.function":     [],
+  "safeString.method":       ["html"]
 });
 
 module.exports = XSSLint;

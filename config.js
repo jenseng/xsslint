@@ -7,7 +7,10 @@ Config.prototype.set = function(key, value) {
     key = key.slice(0, -1);
     delete this.properties[key];
   }
-  var values = value ? value.split(/\s+/).map(normalizeSetting) : [];
+  var values = value || [];
+  if (typeof values === "string")
+    values = values.split(/\s+/);
+  values = values.map(normalizeSetting);
   this.properties[key] = (this.properties[key] || []).concat(values);
 };
 
@@ -28,10 +31,9 @@ function normalizeSettingPart(setting) {
     return setting;
   if (setting[0] === "/")
     return new RegExp(setting.slice(1, -1));
-  else if (setting.indexOf(".") >= 0)
+  if (setting.indexOf(".") >= 0)
     return setting.split(".").map(normalizeSettingPart);
-  else
-    return setting;
+  return setting;
 }
 
 function deepCopy(object) {
