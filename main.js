@@ -22,7 +22,7 @@ XSSLint.configure({
   "jqueryObject.function":   "$",
   "jqueryObject.method":     null,
   "safeString.identifier":   null,
-  "safeString.property":     null,
+  "safeString.property":     "length",
   "safeString.function":     null,
   "safeString.method":       "html"
 });
