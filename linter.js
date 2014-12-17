@@ -126,8 +126,8 @@ Linter.prototype.isSafeMethod = function(node, type) {
 Linter.prototype.isSafeStringConcatenation = function(node) {
   if (node.type !== "BinaryExpression") return false;
   if (node.operator !== "+") return false;
-  if (!this.isSafeExpression(node.left)) return false;
-  if (!this.isSafeExpression(node.right)) return false;
+  if (!this.isSafeString(node.left)) return false;
+  if (!this.isSafeString(node.right)) return false;
   return true;
 };
 

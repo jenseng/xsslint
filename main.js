@@ -24,7 +24,7 @@ XSSLint.configure({
   "safeString.identifier":   null,
   "safeString.property":     null,
   "safeString.function":     null,
-  "safeString.method":       null
+  "safeString.method":       "html"
 });
 
 module.exports = XSSLint;
