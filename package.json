@@ -1,0 +1,15 @@
+{
+  "name": "xsslint",
+  "version": "0.0.1",
+  "description": "Find potential XSS vulnerabilities",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jon Jensen",
+  "license": "MIT",
+  "dependencies": {
+    "esprima": "^1.2.2",
+    "estraverse": "^1.9.0"
+  }
+}
