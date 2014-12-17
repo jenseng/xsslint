@@ -51,12 +51,13 @@ Linter.prototype.processCall = function(node) {
   var receiver = callee.object;
   var method = callee.property;
 
-  if (this.isXssableCall(callee, receiver, method) && !this.isSafeExpression(node.arguments[0])) {
-    var line = receiver.loc.start.line;
-    receiver = receiver.name;
-    method = method.name;
-    console.log(this.file + ":" + line + ": possibly XSS-able " + method + " call");
-  }
+  if (!this.isXssableCall(callee, receiver, method)) return;
+  if (node.arguments.every(this.isSafeExpression.bind(this))) return;
+
+  var line = receiver.loc.start.line;
+  receiver = receiver.name;
+  method = method.name;
+  console.log(this.file + ":" + line + ": possibly XSS-able " + method + " call");
 };
 
 Linter.prototype.isXssableCall = function(node, receiver, method) {
