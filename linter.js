@@ -70,7 +70,7 @@ Linter.prototype.isXssableFunction = function(node) {
 
 Linter.prototype.isXssableMethod = function(node) {
   return this.methodMatches(node, "xssable") &&
-         !this.identifierMatches(node.callee.object, "xssable", ".whitelist");
+         !this.identifierMatches(node.callee.object, "xssable", ".receiver.whitelist");
 };
 
 Linter.prototype.isSafeExpression = function(method, node) {
