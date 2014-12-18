@@ -17,7 +17,7 @@ XSSLint = {
 
 XSSLint.configure({
   "xssable.function":           ["$"],
-  "xssable.method":             ["append", "prepend", "html", "$"],
+  "xssable.method":             ["append", "prepend", "html", "$", "before", "after"],
   "xssable.receiver.whitelist": [],
   "jqueryObject.identifier":    [],
   "jqueryObject.property":      ["el"],
