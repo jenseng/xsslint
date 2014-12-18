@@ -34,7 +34,7 @@ Evaluate each one, and either:
 
 1. Fix it, if it's an actual problem
 2. If it's a false positive, flag it as such, i.e.
-   * Set your own global [`XSSLint.configure`](/jenseng/xsslint/blob/dcf6ff7f/main.js#L18) to match your conventions.
+   * Set your own global [`XSSLint.configure`](https://github.com/jenseng/xsslint/blob/dcf6ff7f/main.js#L18) to match your conventions.
      For example, if you prefix JQuery object variables with a `$`, and
      you have an html-escaping function called `htmlEscape`, you'd want:
 
@@ -51,5 +51,5 @@ Evaluate each one, and either:
       // xsslint safeString.property /Html$/
      ```
 
-   See the [default configuration](/jenseng/xsslint/blob/dcf6ff7f/main.js#L18) to get an idea what kinds of things
+   See the [default configuration](https://github.com/jenseng/xsslint/blob/dcf6ff7f/main.js#L18) to get an idea what kinds of things
    can be set.
