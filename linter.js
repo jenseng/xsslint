@@ -91,7 +91,7 @@ Linter.prototype.isSelectorExpression = function(node) {
 
   if (node.type === "BinaryExpression" || node.type === "AssignmentExpression" || node.type === "LogicalExpression") {
     if (this.isSelectorExpression(node.left)) return true;
-    if (node.left.type === "Literal" && node.left.value[0] !== "<") return true;
+    if (node.left.type === "Literal" && node.left.value.trim()[0] !== "<") return true;
   }
 
   return false;
