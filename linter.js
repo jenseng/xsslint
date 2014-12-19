@@ -76,6 +76,7 @@ Linter.prototype.isXssableMethod = function(node) {
 
 Linter.prototype.isSafeExpression = function(method, node) {
   if (!node) return true;
+  if (this.isSafeArrayExpression(method, node)) return true;
   if (this.isSafeLogicalExpression(method, node)) return true;
   if (this.isSafeAssignmentExpression(method, node)) return true;
   if (this.isSafeConditionalExpression(method, node)) return true;
@@ -88,6 +89,11 @@ Linter.prototype.isSafeExpression = function(method, node) {
   }
   return false;
 };
+
+Linter.prototype.isSafeArrayExpression = function(method, node) {
+  return node.type === "ArrayExpression" &&
+    node.elements.every(this.isSafeExpression.bind(this, method));
+}
 
 Linter.prototype.isSafeLogicalExpression = function(method, node) {
   return node.type === "LogicalExpression" &&
@@ -108,7 +114,6 @@ Linter.prototype.isSafeConditionalExpression = function(method, node) {
 
 Linter.prototype.isSafeJqueryExpression = function(node) {
   switch (node.type) {
-    case "ArrayExpression":
     case "ObjectExpression":
     case "FunctionExpression":
     case "MemberExpression":
