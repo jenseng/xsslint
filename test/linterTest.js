@@ -92,6 +92,10 @@ describe("Linter", function() {
       it("should reject unsafe strings", function() {
         assert.lengthOf(lint("foo.html('ohai ' + unsafe)"), 1);
       });
+
+      it("should reject unsafe strings as part of a standalone html snippet", function() {
+        assert.lengthOf(lint("var foo = '<b>' + unsafe + '</b>'"), 1);
+      });
     });
   });
 
@@ -125,6 +129,11 @@ describe("Linter", function() {
     it("should allow arbitrary concatenation if it seems like a selector", function() {
       assert.lengthOf(lint("$('.foo_' + unknown)"), 0);
       assert.lengthOf(lint("$(selectorPrefix + unknown)"), 0);
+    });
+
+    it("should validate the html attribute", function() {
+      assert.lengthOf(lint("$('<div />', {html: 'ohai'})"), 0);
+      assert.lengthOf(lint("$('<div />', {html: unsafe})"), 1);
     });
   });
 });
