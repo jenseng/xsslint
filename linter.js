@@ -76,6 +76,7 @@ Linter.prototype.isXssableMethod = function(node) {
 
 Linter.prototype.isSafeExpression = function(method, node) {
   if (!node) return true;
+  if (node.type === "AssignmentExpression") return this.isSafeExpression(method, node.right);
   if (this.isSafeString(node)) return true;
   if (this.isJQueryObject(node)) return true;
   // TODO: make this configurable somehow
@@ -86,7 +87,7 @@ Linter.prototype.isSafeExpression = function(method, node) {
 };
 
 Linter.prototype.isSelectorExpression = function(node) {
-  var acceptableTypes = ["MemberExpression", "Identifier", "CallExpression", "ThisExpression", "FunctionExpression", "ObjectExpression", "ArrayExpression"];
+  var acceptableTypes = ["MemberExpression", "Identifier", "CallExpression", "ThisExpression", "FunctionExpression", "ObjectExpression", "ArrayExpression", "ConditionalExpression"];
   if (acceptableTypes.indexOf(node.type) >= 0) return true;
 
   if (node.type === "BinaryExpression" || node.type === "AssignmentExpression" || node.type === "LogicalExpression") {
