@@ -95,6 +95,10 @@ describe("Linter", function() {
 
       it("should reject unsafe strings as part of a standalone html snippet", function() {
         assert.lengthOf(lint("var foo = '<b>' + unsafe + '</b>'"), 1);
+        assert.lengthOf(lint("var foo = '<b>' + ' ' + unsafe + ' ' + '</b>'"), 1);
+        assert.lengthOf(lint("var foo =  unsafe + ' ' + '<img>'"), 1);
+        assert.lengthOf(lint("var foo = '<img>' + ' ' + unsafe"), 1);
+        assert.lengthOf(lint("var foo = '<img>' + (' ' + unsafe)"), 1);
       });
     });
   });

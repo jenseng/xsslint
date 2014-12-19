@@ -19,6 +19,12 @@ function propertyMatches(receiver, property, pattern) {
          identifierMatches(property, pattern.identifier)
 }
 
+function isHtmly(node) {
+  return node.type === "Literal" &&
+    typeof node.value === "string" &&
+    node.value.match(/<[a-zA-Z]/);
+}
+
 function Linter(source, defaults) {
   defaults = defaults || new Config;
   this.ast = esprima.parse(source, {loc: true, comment: true});
@@ -63,18 +69,30 @@ Linter.prototype.processCall = function(node) {
   this.warnings.push({line: line, method: method + "()"});
 };
 
-Linter.prototype.isHtmly = function(node) {
-  return node.type === "Literal" &&
-    typeof node.value === "string" &&
-    node.value.match(/<[a-zA-Z]/);
+Linter.prototype.processConcatenation = function(node) {
+  var components = this.flattenConcatenation(node);
+  if (!components.some(isHtmly)) return;
+  if (components.every(this.isSafeString.bind(this))) return;
+
+  // consume the nodes so we don't process nested stuff again
+  node.left = null;
+  node.right = null;
+
+  var line = node.loc.start.line;
+  this.warnings.push({line: line, method: "+"});
 };
 
-Linter.prototype.processConcatenation = function(node) {
-  if (this.isHtmly(node.left) || this.isHtmly(node.right)) {
-    if (this.isSafeExpression("+", node.left) && this.isSafeExpression("+", node.right)) return;
-    var line = node.loc.start.line;
-    this.warnings.push({line: line, method: "+"});
-  }
+Linter.prototype.flattenConcatenation = function(node) {
+  var result
+  if (node.left.type === "BinaryExpression" && node.left.operator === "+")
+    result = this.flattenConcatenation(node.left);
+  else
+    result = [node.left];
+  if (node.right.type === "BinaryExpression" && node.right.operator === "+")
+    result = result.concat(this.flattenConcatenation(node.right))
+  else
+    result.push(node.right);
+  return result;
 };
 
 Linter.prototype.isXssableCall = function(node) {
