@@ -1,7 +1,7 @@
 # xsslint
 
-Find potential vulneribilities in your ~~jquery spaghetti~~ beautiful code,
-e.g.
+Find potential XSS vulnerabilities in your ~~jquery spaghetti~~ beautiful
+code, e.g.
 
 ```javascript
 $('h2').html("Hello <i>" + unsafeVar + "</i>")
