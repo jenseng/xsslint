@@ -22,7 +22,7 @@ XSSLint = {
 };
 
 XSSLint.configure({
-  "xssable.function":           ["$"],
+  "xssable.function":           ["$", "jQuery"],
   "xssable.method":             ["append", "prepend", "html", "$", "before", "after"],
   "xssable.receiver.whitelist": [],
   "jqueryObject.identifier":    [],

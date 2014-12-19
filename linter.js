@@ -87,7 +87,7 @@ Linter.prototype.isSafeExpression = function(method, node) {
   if (this.isSafeString(node)) return true;
   if (this.isJQueryObject(node)) return true;
   // TODO: make this configurable somehow
-  if (method === "$") {
+  if (method === "$" || method === "jQuery") {
     if (this.isSafeJqueryExpression(node)) return true;
   }
   return false;
