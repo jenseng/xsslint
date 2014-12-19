@@ -1,6 +1,7 @@
 var esprima    = require("esprima");
 var estraverse = require("estraverse");
 var fs         = require("fs");
+var Config     = require("./config");
 
 function identifierMatches(string, pattern) {
   if (!pattern) {
@@ -18,9 +19,9 @@ function propertyMatches(receiver, property, pattern) {
          identifierMatches(property, pattern.identifier)
 }
 
-function Linter(file, defaults) {
-  this.file = file;
-  this.ast = esprima.parse(fs.readFileSync(file), {loc: true, comment: true});
+function Linter(source, defaults) {
+  defaults = defaults || new Config;
+  this.ast = esprima.parse(source, {loc: true, comment: true});
   this.setOverrides(defaults);
 }
 
@@ -38,12 +39,14 @@ Linter.prototype.setOverrides = function(defaults) {
 }
 
 Linter.prototype.run = function() {
+  this.warnings = [];
   estraverse.traverse(this.ast, {
     enter: function(node) {
       if (node.type === "CallExpression")
         this.processCall(node);
     }.bind(this)
   });
+  return this.warnings;
 };
 
 Linter.prototype.processCall = function(node) {
@@ -55,7 +58,7 @@ Linter.prototype.processCall = function(node) {
   if (node.arguments.every(this.isSafeExpression.bind(this, method))) return;
 
   var line = callee.loc.start.line;
-  console.log(this.file + ":" + line + ": possibly XSS-able `" + method + "()` call");
+  this.warnings.push({line: line, method: method});
 };
 
 Linter.prototype.isXssableCall = function(node) {

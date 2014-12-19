@@ -8,12 +8,16 @@
     "url": "https://github.com/jenseng/xsslint"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test --recursive"
   },
   "author": "Jon Jensen",
   "license": "MIT",
   "dependencies": {
     "esprima": "^1.2.2",
     "estraverse": "^1.9.0"
+  },
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "mocha": "^2.0.1"
   }
 }

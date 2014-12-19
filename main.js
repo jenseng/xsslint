@@ -1,5 +1,6 @@
 var Config = require("./config");
 var Linter = require("./linter");
+var fs = require("fs");
 
 XSSLint = {
   config: new Config,
@@ -10,8 +11,13 @@ XSSLint = {
   },
 
   run: function(file) {
-    var linter = new Linter(file, this.config);
-    linter.run();
+    var source = fs.readFileSync(file);
+    var linter = new Linter(source, this.config);
+    var warnings = linter.run();
+    for (var i = 0, len = warnings.length; i < len; i++) {
+      var warning = warnings[i];
+      console.log(file + ":" + warning.line + ": possibly XSS-able `" + warning.method + "()` call");
+    }
   }
 };
 
