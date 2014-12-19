@@ -36,7 +36,7 @@ Linter.prototype.setOverrides = function(defaults) {
     });
   });
   this.config = config;
-}
+};
 
 Linter.prototype.run = function() {
   this.warnings = [];
@@ -44,6 +44,8 @@ Linter.prototype.run = function() {
     enter: function(node) {
       if (node.type === "CallExpression")
         this.processCall(node);
+      else if (node.type === "BinaryExpression" && node.operator === "+")
+        this.processConcatenation(node);
     }.bind(this)
   });
   return this.warnings;
@@ -58,7 +60,21 @@ Linter.prototype.processCall = function(node) {
   if (node.arguments.every(this.isSafeExpression.bind(this, method))) return;
 
   var line = callee.loc.start.line;
-  this.warnings.push({line: line, method: method});
+  this.warnings.push({line: line, method: method + "()"});
+};
+
+Linter.prototype.isHtmly = function(node) {
+  return node.type === "Literal" &&
+    typeof node.value === "string" &&
+    node.value.match(/<[a-zA-Z]/);
+};
+
+Linter.prototype.processConcatenation = function(node) {
+  if (this.isHtmly(node.left) || this.isHtmly(node.right)) {
+    if (this.isSafeExpression("+", node.left) && this.isSafeExpression("+", node.right)) return;
+    var line = node.loc.start.line;
+    this.warnings.push({line: line, method: "+"});
+  }
 };
 
 Linter.prototype.isXssableCall = function(node) {
@@ -127,11 +143,8 @@ Linter.prototype.isSafeJqueryExpression = function(node) {
     case "Identifier":
     case "CallExpression":
     case "ThisExpression":
+    case "BinaryExpression": // assumed we are building a selector; processConcatenation should detect unsafe html snippet concatenation
       return true;
-    case "BinaryExpression":
-      if (this.isSafeJqueryExpression(node.left)) return true;
-      if (node.left.type === "Literal" && node.left.value.trim()[0] !== "<") return true;
-      return false;
   }
   return false;
 };

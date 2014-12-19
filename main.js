@@ -16,7 +16,7 @@ XSSLint = {
     var warnings = linter.run();
     for (var i = 0, len = warnings.length; i < len; i++) {
       var warning = warnings[i];
-      console.log(file + ":" + warning.line + ": possibly XSS-able `" + warning.method + "()` call");
+      console.log(file + ":" + warning.line + ": possibly XSS-able `" + warning.method + "` call");
     }
   }
 };
