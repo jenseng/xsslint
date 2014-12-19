@@ -118,6 +118,10 @@ Linter.prototype.isSafeConditionalExpression = function(method, node) {
 Linter.prototype.isSafeJqueryExpression = function(node) {
   switch (node.type) {
     case "ObjectExpression":
+      var htmlOption = node.properties.filter(function(prop){
+        return prop.key.name === "html";
+      })[0];
+      if (htmlOption) return this.isSafeExpression("html", htmlOption.value);
     case "FunctionExpression":
     case "MemberExpression":
     case "Identifier":
