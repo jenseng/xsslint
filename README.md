@@ -20,11 +20,14 @@ var glob = require("glob");
 var XSSLint = require("xsslint");
 var files = glob.sync("path/to/files/**/*.js");
 files.forEach(function(file) {
-  XSSLint.run(file);
+  var warnings = XSSLint.run(file);
+  warnings.forEach(function(warning) {
+    console.error(file + ":" + warning.line + ": possibly XSS-able `" + warning.method + "` call");
+  });
 });
 ```
 
-This will give you a bunch of warnings like:
+This will print out a bunch of warnings like:
 
 ```
 foo.js:123: possibly XSS-able `html()` call
