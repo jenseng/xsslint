@@ -21,7 +21,7 @@ npm install xsslint
 # usage
 
 xsslint's API is simple; it accepts a filename and returns an array of
-warnings objects for that file. To lint your whole codebase, you'll want a
+warning objects for that file. To lint your whole codebase, you'll want a
 little bit of glue code like so:
 
 ```javascript
