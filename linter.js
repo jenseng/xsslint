@@ -1,6 +1,5 @@
 var esprima    = require("esprima");
 var estraverse = require("estraverse");
-var fs         = require("fs");
 var Config     = require("./config");
 
 function identifierMatches(string, pattern) {
