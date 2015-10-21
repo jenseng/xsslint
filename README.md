@@ -78,4 +78,4 @@ It also identified [dozens of potentially problematic areas](https://github.com/
 
 # license
 
-Copyright (c) 2014 Jon Jensen, released under the MIT license
+Copyright (c) 2015 Jon Jensen, released under the MIT license

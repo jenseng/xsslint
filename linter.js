@@ -1,4 +1,4 @@
-var esprima    = require("esprima");
+var acorn      = require("acorn-jsx");
 var estraverse = require("estraverse");
 var Config     = require("./config");
 
@@ -26,7 +26,15 @@ function isHtmly(node) {
 
 function Linter(source, defaults) {
   defaults = defaults || new Config;
-  this.ast = esprima.parse(source, {loc: true, comment: true});
+  var comments = [];
+  var tokens = [];
+  this.ast = acorn.parse(source, {
+    plugins: { jsx: true },
+    ecmaVersion: 7,
+    locations: true,
+    onComment: comments
+  });
+  this.ast.comments = comments;
   this.setOverrides(defaults);
 }
 

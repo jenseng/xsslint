@@ -1,6 +1,6 @@
 {
   "name": "xsslint",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Find potential XSS vulnerabilities",
   "main": "main.js",
   "repository": {
@@ -13,8 +13,8 @@
   "author": "Jon Jensen",
   "license": "MIT",
   "dependencies": {
-    "esprima": "^1.2.2",
-    "estraverse": "^1.9.0"
+    "acorn-jsx": "^2.0.1",
+    "estraverse": "^4.1.1"
   },
   "devDependencies": {
     "chai": "^1.10.0",
