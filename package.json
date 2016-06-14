@@ -13,8 +13,8 @@
   "author": "Jon Jensen",
   "license": "MIT",
   "dependencies": {
-    "acorn": "~2.5.0",
-    "acorn-jsx": "^2.0.1",
+    "acorn": "~3.2.0",
+    "acorn-jsx": "^3.0.1",
     "estraverse": "^4.1.1"
   },
   "devDependencies": {
