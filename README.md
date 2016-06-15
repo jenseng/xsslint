@@ -1,5 +1,7 @@
 # xsslint
 
+[<img src="https://travis-ci.org/jenseng/xsslint.svg" />](http://travis-ci.org/jenseng/xsslint)
+
 Find potential XSS vulnerabilities in your ~~jquery spaghetti~~ beautiful
 code, e.g.
 
