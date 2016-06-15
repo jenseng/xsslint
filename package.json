@@ -1,6 +1,6 @@
 {
   "name": "xsslint",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Find potential XSS vulnerabilities",
   "main": "main.js",
   "repository": {
