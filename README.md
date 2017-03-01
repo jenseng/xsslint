@@ -56,8 +56,8 @@ Given a list of warnings, you'll want to evaluate each one, and then:
 
      ```javascript
       XSSLint.configure({
-        "jqueryObject.identifier": /^\$/,
-        "safeString.function":     "htmlEscape"
+        "jqueryObject.identifier": [/^\$/],
+        "safeString.function":     ["htmlEscape"]
      });
      ```
    * Set your own file-specific config overrides via comment, e.g.
