@@ -81,16 +81,20 @@ describe("Linter", function() {
     describe("literals", function() {
       it("should be ok", function() {
         assert.lengthOf(lint("foo.html('ohai')"), 0);
+        assert.lengthOf(lint("foo.html(123)"), 0);
+        assert.lengthOf(lint("foo.html(true)"), 0);
       });
     });
 
     describe("concatenation", function() {
       it("should accept safe strings", function() {
         assert.lengthOf(lint("foo.html('ohai ' + 'you')"), 0);
+        assert.lengthOf(lint("foo.html('<b>so bold</b>')"), 0);
       });
 
       it("should reject unsafe strings", function() {
         assert.lengthOf(lint("foo.html('ohai ' + unsafe)"), 1);
+        assert.lengthOf(lint("foo.html('<b>ohai</b> ' + unsafe)"), 1);
       });
 
       it("should reject unsafe strings as part of a standalone html snippet", function() {
@@ -100,6 +104,26 @@ describe("Linter", function() {
         assert.lengthOf(lint("var foo = '<img>' + ' ' + unsafe"), 1);
         assert.lengthOf(lint("var foo = '<img>' + (' ' + unsafe)"), 1);
       });
+    });
+  });
+
+  describe("template literals", function() {
+    it("should accept safe template literals", function() {
+      assert.lengthOf(lint("foo.html(`ohai`)"), 0);
+      assert.lengthOf(lint("foo.html(`<b>so bold</b>`)"), 0);
+      assert.lengthOf(lint("foo.html(`ohai ${'you'}`)"), 0);
+    });
+
+    it("should reject unsafe template literals", function() {
+      assert.lengthOf(lint("foo.html(`ohai ${unsafe}`)"), 1);
+      assert.lengthOf(lint("foo.html(`<b>ohai</b> ${unsafe}`)"), 1);
+      assert.lengthOf(lint("foo.html(opaqueTag`ohai`)"), 1);
+    });
+
+    it("should reject unsafe template literals as part of a standalone html snippet", function() {
+      assert.lengthOf(lint("var foo = `<b>${unsafe}</b>`"), 1);
+      assert.lengthOf(lint("var foo = `${unsafe} <img>`"), 1);
+      assert.lengthOf(lint("var foo = `<img> ${unsafe}`"), 1);
     });
   });
 
@@ -126,13 +150,15 @@ describe("Linter", function() {
       assert.lengthOf(lint("$(this.el)"), 0);
     });
 
-    it("should check for unsafe string concatenation", function() {
+    it("should check for html-y concatenation/templates", function() {
       assert.lengthOf(lint("$('<b>' + unknown + '</b>')"), 1);
+      assert.lengthOf(lint("$(`<b>${unsafe}</b>`)"), 1);
     });
 
-    it("should allow arbitrary concatenation if it seems like a selector", function() {
+    it("should allow selector-y concatenation/templates", function() {
       assert.lengthOf(lint("$('.foo_' + unknown)"), 0);
       assert.lengthOf(lint("$(selectorPrefix + unknown)"), 0);
+      assert.lengthOf(lint("$(`#foo_${id}`)"), 0);
     });
 
     it("should validate the html attribute", function() {

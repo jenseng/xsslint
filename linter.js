@@ -19,8 +19,8 @@ function propertyMatches(receiver, property, pattern) {
 }
 
 function isHtmly(node) {
-  return node.type === "StringLiteral" &&
-    node.value.match(/<[a-zA-Z]/);
+  return (node.type === "StringLiteral" && node.value.match(/<[a-zA-Z]/)) ||
+         (node.type === "TemplateElement" && node.value.raw.match(/<[a-zA-Z]/));
 }
 
 function Linter(sourceOrAst, defaults) {
@@ -30,6 +30,8 @@ function Linter(sourceOrAst, defaults) {
     this.ast = sourceOrAst;
   }
   this.setOverrides(defaults || new Config);
+
+  this.isSafeString = this.isSafeString.bind(this);
 }
 
 Linter.prototype.setOverrides = function(defaults) {
@@ -54,6 +56,8 @@ Linter.prototype.run = function() {
         this.processCall(node);
       else if (node.type === "BinaryExpression" && node.operator === "+")
         this.processConcatenation(node);
+      else if (node.type === "TemplateLiteral")
+        this.processTemplateLiteral(node);
     }.bind(this)
   });
   return this.warnings;
@@ -72,9 +76,10 @@ Linter.prototype.processCall = function(node) {
 };
 
 Linter.prototype.processConcatenation = function(node) {
+  if (node.__alreadyFlaggedUnsafe) return;
   var components = this.flattenConcatenation(node);
   if (!components.some(isHtmly)) return;
-  if (components.every(this.isSafeString.bind(this))) return;
+  if (components.every(this.isSafeString)) return;
 
   // consume the nodes so we don't process nested stuff again
   node.left = null;
@@ -83,6 +88,16 @@ Linter.prototype.processConcatenation = function(node) {
   var line = node.loc.start.line;
   this.warnings.push({line: line, method: "+"});
 };
+
+Linter.prototype.processTemplateLiteral = function(node) {
+  if (node.__alreadyFlaggedUnsafe) return;
+  if (!node.expressions.length) return;
+  if (!node.quasis.some(isHtmly)) return;
+  if (node.expressions.every(this.isSafeString)) return;
+
+  var line = node.loc.start.line;
+  this.warnings.push({line: line, method: "`"});
+}
 
 Linter.prototype.flattenConcatenation = function(node) {
   var result
@@ -163,7 +178,12 @@ Linter.prototype.isSafeJqueryExpression = function(node) {
     case "Identifier":
     case "CallExpression":
     case "ThisExpression":
-    case "BinaryExpression": // assumed we are building a selector; processConcatenation should detect unsafe html snippet concatenation
+      return true;
+    case "BinaryExpression":
+    case "TemplateLiteral":
+      // might not be safe, but if it's a selector it doesn't matter, so un-mark it
+      // if it's unsafe htmly stuff, we'll pick it up elsewhere
+      node.__alreadyFlaggedUnsafe = false;
       return true;
   }
   return false;
@@ -180,6 +200,7 @@ Linter.prototype.isSafeString = function(node) {
   if (this.functionMatches(node, "safeString")) return true;
   if (this.methodMatches(node, "safeString")) return true;
   if (this.isSafeStringConcatenation(node)) return true;
+  if (this.isSafeTemplateLiteral(node)) return true;
   return false;
 };
 
@@ -224,9 +245,20 @@ Linter.prototype.methodMatches = function(node, type) {
 Linter.prototype.isSafeStringConcatenation = function(node) {
   if (node.type !== "BinaryExpression") return false;
   if (node.operator !== "+") return false;
-  if (!this.isSafeString(node.left)) return false;
-  if (!this.isSafeString(node.right)) return false;
-  return true;
+
+  if (this.isSafeString(node.left) && this.isSafeString(node.right)) return true;
+
+  node.__alreadyFlaggedUnsafe = true;
+  return false;
+};
+
+Linter.prototype.isSafeTemplateLiteral = function(node) {
+  if (node.type !== "TemplateLiteral") return false;
+
+  if (node.expressions.every(this.isSafeString)) return true;
+
+  node.__alreadyFlaggedUnsafe = true;
+  return false;
 };
 
 Linter.prototype.isJQueryObject = function(node) {
