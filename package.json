@@ -13,12 +13,11 @@
   "author": "Jon Jensen",
   "license": "MIT",
   "dependencies": {
-    "acorn": "~3.2.0",
-    "acorn-jsx": "^3.0.1",
-    "estraverse": "^4.1.1"
+    "babel-traverse": "^6.0.0",
+    "babylon": "^6.0.0"
   },
   "devDependencies": {
-    "chai": "^1.10.0",
-    "mocha": "^2.0.1"
+    "chai": "~3.5.0",
+    "mocha": "~3.2.0"
   }
 }

@@ -1,5 +1,5 @@
-var acorn      = require("acorn-jsx");
-var estraverse = require("estraverse");
+var parse      = require("babylon").parse;
+var traverse   = require("babel-traverse").default;
 var Config     = require("./config");
 
 function identifierMatches(string, pattern) {
@@ -19,23 +19,17 @@ function propertyMatches(receiver, property, pattern) {
 }
 
 function isHtmly(node) {
-  return node.type === "Literal" &&
-    typeof node.value === "string" &&
+  return node.type === "StringLiteral" &&
     node.value.match(/<[a-zA-Z]/);
 }
 
-function Linter(source, defaults) {
-  defaults = defaults || new Config;
-  var comments = [];
-  var tokens = [];
-  this.ast = acorn.parse(source, {
-    plugins: { jsx: true },
-    ecmaVersion: 7,
-    locations: true,
-    onComment: comments
-  });
-  this.ast.comments = comments;
-  this.setOverrides(defaults);
+function Linter(sourceOrAst, defaults) {
+  if (typeof sourceOrAst === "string") {
+    this.ast = parse(sourceOrAst, {plugins: ["jsx", "classProperties", "objectRestSpread"]});
+  } else {
+    this.ast = sourceOrAst;
+  }
+  this.setOverrides(defaults || new Config);
 }
 
 Linter.prototype.setOverrides = function(defaults) {
@@ -53,8 +47,9 @@ Linter.prototype.setOverrides = function(defaults) {
 
 Linter.prototype.run = function() {
   this.warnings = [];
-  estraverse.traverse(this.ast, {
+  traverse(this.ast, {
     enter: function(node) {
+      node = node.node;
       if (node.type === "CallExpression")
         this.processCall(node);
       else if (node.type === "BinaryExpression" && node.operator === "+")
@@ -175,7 +170,11 @@ Linter.prototype.isSafeJqueryExpression = function(node) {
 };
 
 Linter.prototype.isSafeString = function(node) {
-  if (node.type === "Literal") return true;
+  if (node.type === "RegExpLiteral") return true;
+  if (node.type === "NullLiteral") return true;
+  if (node.type === "StringLiteral") return true;
+  if (node.type === "BooleanLiteral") return true;
+  if (node.type === "NumericLiteral") return true;
   if (this.identifierMatches(node, "safeString")) return true;
   if (this.propertyMatches(node, "safeString")) return true;
   if (this.functionMatches(node, "safeString")) return true;
