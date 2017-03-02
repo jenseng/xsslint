@@ -10,8 +10,11 @@ XSSLint = {
       this.config.set(key, properties[key]);
   },
 
-  run: function(file) {
-    var source = fs.readFileSync(file);
+  run: function(pathOrOptions) {
+    var source = typeof pathOrOptions === "string" ?
+      fs.readFileSync(pathOrOptions).toString() :
+      pathOrOptions.source;
+
     var linter = new Linter(source, this.config);
     return linter.run();
   }
