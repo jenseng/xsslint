@@ -174,6 +174,7 @@ Linter.prototype.isSafeJqueryExpression = function(node) {
       })[0];
       if (htmlOption) return this.isSafeExpression("html", htmlOption.value);
     case "FunctionExpression":
+    case "ArrowFunctionExpression":
     case "MemberExpression":
     case "Identifier":
     case "CallExpression":

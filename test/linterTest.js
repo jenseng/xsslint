@@ -141,6 +141,7 @@ describe("Linter", function() {
   describe("$()", function() {
     it("should allow functions", function() {
       assert.lengthOf(lint("$(function(){})"), 0);
+      assert.lengthOf(lint("$(()=>{})"), 0);
     });
 
     it("should allow things that look safe", function() {
