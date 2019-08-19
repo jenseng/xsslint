@@ -13,8 +13,8 @@
   "author": "Jon Jensen",
   "license": "MIT",
   "dependencies": {
-    "babel-traverse": "^6.0.0",
-    "babylon": "^6.0.0"
+    "@babel/traverse": "^7",
+    "@babel/parser": "^7"
   },
   "devDependencies": {
     "chai": "~3.5.0",
