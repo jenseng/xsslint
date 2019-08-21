@@ -1,5 +1,5 @@
-var parse      = require("babylon").parse;
-var traverse   = require("babel-traverse").default;
+var parse      = require("@babel/parser").parse;
+var traverse   = require("@babel/traverse").default;
 var Config     = require("./config");
 
 function identifierMatches(string, pattern) {
