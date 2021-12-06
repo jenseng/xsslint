@@ -25,7 +25,10 @@ function isHtmly(node) {
 
 function Linter(sourceOrAst, defaults) {
   if (typeof sourceOrAst === "string") {
-    this.ast = parse(sourceOrAst, {plugins: ["jsx", "classProperties", "objectRestSpread"]});
+    this.ast = parse(sourceOrAst, {
+      plugins: ["jsx", "classProperties", "objectRestSpread"],
+      allowImportExportEverywhere: true
+    });
   } else {
     this.ast = sourceOrAst;
   }
