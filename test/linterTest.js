@@ -127,6 +127,16 @@ describe("Linter", function() {
     });
   });
 
+  describe('allow import/export', function () {
+    it('should allow import statements', function () {
+        assert.lengthOf(lint("import jQuery from 'jQuery'"), 0);
+    });
+
+    it('should allow export statements', function () {
+        assert.lengthOf(lint("export function a() { return 'a'; }"), 0);
+    });
+  });
+
   describe("jQuery objects", function() {
     it("should be ok", function() {
       assert.lengthOf(lint("foo.html($('div'))"), 0);
